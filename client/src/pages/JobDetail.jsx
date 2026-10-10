@@ -14,7 +14,7 @@ export default function JobDetail() {
 
   const apply = async (e) => {
     e.preventDefault();
-    try { await api.post(`/applications/${id}`, form); setMsg("Application submitted!"); }
+    try { await api.post(`/applications/${id}`, form); setMsg("Application submitted! You can see it on your dashboard."); }
     catch (err) { setMsg(errMsg(err)); }
   };
 
@@ -27,6 +27,7 @@ export default function JobDetail() {
       <p style={{ whiteSpace: "pre-wrap" }}>{job.description}</p>
       <hr />
       {!user && <p><Link to="/login">Log in</Link> as a candidate to apply.</p>}
+      {user?.role === "employer" && <p className="muted">You are logged in as an employer. Log out and log in with a candidate account to apply.</p>}
       {user?.role === "candidate" && (
         <form onSubmit={apply} className="col">
           <h3>Apply</h3>

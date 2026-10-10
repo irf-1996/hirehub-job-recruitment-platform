@@ -4,6 +4,7 @@ const appSchema = new mongoose.Schema({
   candidate: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   coverLetter: { type: String, default: "" },
   resumeUrl: { type: String, default: "" },
+  aiReview: { type: new mongoose.Schema({ summary: String, strengths: [String], gaps: [String], fitScore: Number, model: String, generatedAt: Date }, { _id: false }) },
   status: { type: String, enum: ["applied", "shortlisted", "rejected"], default: "applied" },
 }, { timestamps: true });
 appSchema.index({ job: 1, candidate: 1 }, { unique: true });

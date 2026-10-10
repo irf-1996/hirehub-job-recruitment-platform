@@ -11,3 +11,5 @@ input,select,textarea{padding:10px;border:1px solid #cdd4e2;border-radius:8px;fo
 .tag{display:inline-block;background:#e8eefc;border-radius:20px;padding:3px 10px;font-size:13px;margin-right:6px}
 .tag.shortlisted{background:#d9f5e2}.tag.rejected{background:#fbe0e0}
 .muted{color:#6b7488}.error{color:#d64545}.applicant{border-top:1px solid #e3e7ef;margin-top:12px;padding-top:10px}
+.ai-review{background:#f3f6ff;border:1px solid #d5def7;border-radius:8px;padding:10px 12px;margin:8px 0}.ai-review p{margin:6px 0}
+.btn:disabled{opacity:.6;cursor:not-allowed}

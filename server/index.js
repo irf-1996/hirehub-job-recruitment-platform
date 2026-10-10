@@ -4,7 +4,9 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import jobRoutes from "./routes/jobs.js";
+import companyRoutes from "./routes/companies.js";
 import applicationRoutes from "./routes/applications.js";
+import aiRoutes from "./routes/ai.js";
 
 dotenv.config();
 const app = express();
@@ -13,7 +15,9 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/companies", companyRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/ai", aiRoutes);
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 
 mongoose

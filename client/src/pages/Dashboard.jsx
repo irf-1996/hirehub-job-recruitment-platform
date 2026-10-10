@@ -28,6 +28,8 @@ function Employer() {
   const [open, setOpen] = useState(null);
   const [applicants, setApplicants] = useState([]);
   const [err, setErr] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [reviewBusy, setReviewBusy] = useState(null);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const load = () => api.get("/jobs/mine/list").then((r) => setJobs(r.data));
   useEffect(() => { load(); }, []);
@@ -36,6 +38,22 @@ function Employer() {
     e.preventDefault();
     try { await api.post("/jobs", form); setForm(empty); setErr(""); load(); }
     catch (e2) { setErr(errMsg(e2)); }
+  };
+  const draftWithAi = async () => {
+    setAiBusy(true); setErr("");
+    try {
+      const { data } = await api.post("/ai/job-description", { ...form, notes: form.description });
+      setForm((f) => ({ ...f, description: data.description }));
+    } catch (e2) { setErr(errMsg(e2)); }
+    setAiBusy(false);
+  };
+  const reviewApplicant = async (id, refresh = false) => {
+    setReviewBusy(id);
+    try {
+      const { data } = await api.post(`/ai/applications/${id}/review${refresh ? "?refresh=1" : ""}`);
+      setApplicants((list) => list.map((a) => (a._id === id ? { ...a, aiReview: data } : a)));
+    } catch (e2) { alert(errMsg(e2)); }
+    setReviewBusy(null);
   };
   const remove = async (id) => { if (confirm("Delete this job?")) { await api.delete(`/jobs/${id}`); setOpen(null); load(); } };
   const view = async (id) => {
@@ -61,7 +79,11 @@ function Employer() {
           </select>
           <input placeholder="Salary (optional)" value={form.salary} onChange={set("salary")} />
         </div>
-        <textarea rows="5" placeholder="Description" value={form.description} onChange={set("description")} required />
+        <textarea rows="5" placeholder="Description (or type rough notes and click Draft with AI)" value={form.description} onChange={set("description")} required />
+        <button type="button" className="btn small" onClick={draftWithAi} disabled={aiBusy || !form.title || !form.description.trim()}>
+          {aiBusy ? "Drafting..." : "Draft with AI"}
+        </button>
+        <p className="muted">AI drafts from your notes. Always review and edit before publishing.</p>
         {err && <p className="error">{err}</p>}
         <button className="btn">Publish job</button>
       </form>
@@ -78,6 +100,20 @@ function Employer() {
               <strong>{a.candidate?.name}</strong> ({a.candidate?.email})
               {a.resumeUrl && <> · <a href={a.resumeUrl} target="_blank" rel="noreferrer">Resume</a></>}
               <p style={{ whiteSpace: "pre-wrap" }}>{a.coverLetter}</p>
+              {a.aiReview ? (
+                <div className="ai-review">
+                  <strong>AI summary (advisory only) · fit {a.aiReview.fitScore ?? "n/a"}/10</strong>
+                  <p>{a.aiReview.summary}</p>
+                  {a.aiReview.strengths?.length > 0 && <p><em>Strengths:</em> {a.aiReview.strengths.join("; ")}</p>}
+                  {a.aiReview.gaps?.length > 0 && <p><em>Gaps:</em> {a.aiReview.gaps.join("; ")}</p>}
+                  <button type="button" className="btn small" onClick={() => reviewApplicant(a._id, true)} disabled={reviewBusy === a._id}>Refresh</button>
+                  <p className="muted">Based on the cover letter only. A person makes the decision.</p>
+                </div>
+              ) : (
+                <button type="button" className="btn small" onClick={() => reviewApplicant(a._id)} disabled={reviewBusy === a._id}>
+                  {reviewBusy === a._id ? "Summarising..." : "AI summary"}
+                </button>
+              )}{" "}
               <select value={a.status} onChange={(e) => setStatus(a._id, e.target.value)}>
                 <option>applied</option><option>shortlisted</option><option>rejected</option>
               </select>

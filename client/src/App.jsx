@@ -2,6 +2,8 @@ import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 import Jobs from "./pages/Jobs.jsx";
 import JobDetail from "./pages/JobDetail.jsx";
+import Companies from "./pages/Companies.jsx";
+import CompanyDetail from "./pages/CompanyDetail.jsx";
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 
@@ -12,6 +14,8 @@ export default function App() {
       <nav className="nav">
         <Link to="/" className="brand">HireHub</Link>
         <div>
+          <Link to="/">Jobs</Link>
+          <Link to="/companies">Companies</Link>
           {user ? (
             <>
               <Link to="/dashboard">Dashboard</Link>
@@ -27,6 +31,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Jobs />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
+          <Route path="/companies" element={<Companies />} />
+          <Route path="/companies/:name" element={<CompanyDetail />} />
           <Route path="/login" element={<Auth mode="login" />} />
           <Route path="/register" element={<Auth mode="register" />} />
           <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
